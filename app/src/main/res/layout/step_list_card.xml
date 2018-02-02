@@ -26,6 +26,11 @@
             android:layout_gravity="center"
             android:id="@+id/step_number_text"
             />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/step_thumbnail"
+            />
 
         <TextView
             android:gravity="center"

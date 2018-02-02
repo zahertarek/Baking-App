@@ -6,7 +6,14 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.nanodegree.android.bakingapp.Adapters.RecipeAdapter;
@@ -31,30 +38,37 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         recipeRecyclerView.setLayoutManager(linearLayoutManager);
-        Type RECiPE_TYPE = new TypeToken<List<Recipe>>() {
+        final Type RECiPE_TYPE = new TypeToken<List<Recipe>>() {
         }.getType();
-        String json;
-        Gson gson = new Gson();
-        try{
-            InputStream is = getAssets().open("baking.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-            recipeAdapterArray= gson.fromJson(json,RECiPE_TYPE);
-            RecipeAdapter recipeAdapter = new RecipeAdapter(recipeAdapterArray, new RecipeAdapter.OnItemClickListener() {
+
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url  = "https://d17h27t6h515a5.cloudfront.net/topher/2017/May/59121517_baking/baking.json";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
                 @Override
-                public void onItemClick(int i) {
-                    Intent intent = new Intent(getBaseContext(),RecipeActivity.class);
-                    intent.putExtra("Recipe",recipeAdapterArray.get(i));
-                    startActivity(intent);
+                public void onResponse(String response) {
+
+                    Gson gson = new Gson();
+                    recipeAdapterArray= gson.fromJson(response,RECiPE_TYPE);
+                    recipeAdapter = new RecipeAdapter(recipeAdapterArray, new RecipeAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(int i) {
+                            Intent intent = new Intent(getBaseContext(),RecipeActivity.class);
+                            intent.putExtra("Recipe",recipeAdapterArray.get(i));
+                            startActivity(intent);
+                        }
+                    });
+                    recipeRecyclerView.setAdapter(recipeAdapter);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(getApplicationContext(),"No INternet Connection",Toast.LENGTH_LONG).show();
                 }
             });
-            recipeRecyclerView.setAdapter(recipeAdapter);
-        }catch (Exception e){
-            Log.e("MAIN Activity","excption",e);
-        }
+            queue.add(stringRequest);
+
+
 
 
     }

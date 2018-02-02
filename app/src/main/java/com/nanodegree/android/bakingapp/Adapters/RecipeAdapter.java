@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.nanodegree.android.bakingapp.R;
 import com.nanodegree.android.bakingapp.recipe.Recipe;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -61,14 +62,28 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
     public void onBindViewHolder(RecipeViewHolder recipeViewHolder, final int i){
         recipeViewHolder.recipeName.setText(recipes.get(i).getName());
         recipeViewHolder.serving.setText("Serves "+recipes.get(i).getServings()+" people.");
-        int imageId = 0;
-        switch(i){
-            case 0 : imageId =R.drawable.rsz_r1;break;
-            case 1 : imageId =R.drawable.rsz_r2;break;
-            case 2 : imageId =R.drawable.rsz_r3;break;
-            case 3 : imageId =R.drawable.rsz_r4;break;
+        if(recipes.get(i).getImage() == null || recipes.get(i).getImage().isEmpty()) {
+            int imageId = 0;
+            switch (i) {
+                case 0:
+                    imageId = R.drawable.rsz_r1;
+                    break;
+                case 1:
+                    imageId = R.drawable.rsz_r2;
+                    break;
+                case 2:
+                    imageId = R.drawable.rsz_r3;
+                    break;
+                case 3:
+                    imageId = R.drawable.rsz_r4;
+                    break;
+            }
+            recipeViewHolder.recipeThumbnail.setImageResource(imageId);
+        }else{
+            Picasso.with(recipeViewHolder.recipeThumbnail.getContext())
+                    .load(recipes.get(i).getImage()).into(recipeViewHolder.recipeThumbnail);
+
         }
-        recipeViewHolder.recipeThumbnail.setImageResource(imageId);
         recipeViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

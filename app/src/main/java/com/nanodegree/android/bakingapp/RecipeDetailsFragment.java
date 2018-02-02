@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -45,7 +46,7 @@ public class RecipeDetailsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_recipe_details,container,false);
         recipe = (Recipe) getArguments().getParcelable("Recipe");
         stepAdapterArray= (ArrayList<Step>) recipe.getSteps();
@@ -65,10 +66,20 @@ public class RecipeDetailsFragment extends Fragment {
         stepsAdapter = new StepsAdapter(stepAdapterArray, new StepsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int i) {
-                Intent intent = new Intent(getActivity(),StepActivity.class);
-                intent.putExtra("Step",i);
-                intent.putParcelableArrayListExtra("Steps",stepAdapterArray);
-                startActivity(intent);
+                if(RecipeActivity.mTwoPane){
+                    Step step =  stepAdapterArray.get(i);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
+                    Bundle args = new Bundle();
+                    args.putParcelable("Step",step);
+                    stepDetailsFragment.setArguments(args);
+                    fragmentManager.beginTransaction().replace(R.id.detail_step,stepDetailsFragment).commit();
+                }else {
+                    Intent intent = new Intent(getActivity(), StepActivity.class);
+                    intent.putExtra("Step", i);
+                    intent.putParcelableArrayListExtra("Steps", stepAdapterArray);
+                    startActivity(intent);
+                }
             }
         });
         stepsRecyclerView.setAdapter(stepsAdapter);

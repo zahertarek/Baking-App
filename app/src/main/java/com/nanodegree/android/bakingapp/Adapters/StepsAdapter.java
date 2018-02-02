@@ -32,6 +32,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepViewHold
         CardView cv;
         TextView stepNumber;
         TextView stepDescription;
+        ImageView stepThumbnail;
 
 
         StepViewHolder(View itemView){
@@ -39,6 +40,7 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepViewHold
             cv = (CardView) itemView.findViewById(R.id.step_card_view);
             stepNumber = (TextView) itemView.findViewById(R.id.step_number_text);
             stepDescription = (TextView) itemView.findViewById(R.id.step_description);
+            stepThumbnail = (ImageView) itemView.findViewById(R.id.step_thumbnail);
         }
     }
 
@@ -69,6 +71,14 @@ public class StepsAdapter extends RecyclerView.Adapter<StepsAdapter.StepViewHold
                 listener.onItemClick(position);
             }
         });
+
+        if(steps.get(position).getThumbnailURL() == null || steps.get(position).getThumbnailURL().isEmpty()){
+            Picasso.with(holder.stepThumbnail.getContext()).load("https://cdn2.iconfinder.com/data/icons/pictograms-3/512/25-512.png")
+                    .into(holder.stepThumbnail);
+        }else{
+            Picasso.with(holder.stepThumbnail.getContext()).load(steps.get(position).getThumbnailURL()).into(holder.stepThumbnail);
+
+        }
     }
 
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {

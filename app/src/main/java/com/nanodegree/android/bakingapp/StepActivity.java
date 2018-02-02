@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,6 +30,7 @@ public class StepActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_step);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         steps     = (ArrayList) getIntent().getParcelableArrayListExtra("Steps");
         stepIndex = getIntent().getExtras().getInt("Step");
         step      = (Step) steps.get(stepIndex);
@@ -50,8 +52,19 @@ public class StepActivity extends AppCompatActivity {
 
             fragmentManager.beginTransaction().add(R.id.fragment_step_container, stepDetailsFragment).commit();
         }
+
+        nextIcon.setOnClickListener(nextListener);
+        nextText.setOnClickListener(nextListener);
+
+        previousIcon.setOnClickListener(previousListener);
+        previousText.setOnClickListener(previousListener);
     }
 
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home)
+            onBackPressed();
+        return super.onOptionsItemSelected(item);
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -65,31 +78,38 @@ public class StepActivity extends AppCompatActivity {
         }
     }
 
-    void nextStep(View view){
-        if(stepIndex != steps.size()-1){
-            stepIndex++;
-            Bundle args = new Bundle();
-            step = (Step) steps.get(stepIndex);
-            args.putParcelable("Step", step);
-            StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
-            stepDetailsFragment.setArguments(args);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.fragment_step_container, stepDetailsFragment).commit();
+    View.OnClickListener nextListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(stepIndex != steps.size()-1){
+                stepIndex++;
+                Bundle args = new Bundle();
+                step = (Step) steps.get(stepIndex);
+                args.putParcelable("Step", step);
+                StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
+                stepDetailsFragment.setArguments(args);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.fragment_step_container, stepDetailsFragment).commit();
+            }
         }
-    }
+    };
 
-    void previousStep(View view){
-        if(stepIndex != 0){
-            stepIndex--;
-            Bundle args = new Bundle();
-            step = (Step) steps.get(stepIndex);
-            args.putParcelable("Step", step);
-            StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
-            stepDetailsFragment.setArguments(args);
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.fragment_step_container, stepDetailsFragment).commit();
+    View.OnClickListener previousListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if(stepIndex != 0){
+                stepIndex--;
+                Bundle args = new Bundle();
+                step = (Step) steps.get(stepIndex);
+                args.putParcelable("Step", step);
+                StepDetailsFragment stepDetailsFragment = new StepDetailsFragment();
+                stepDetailsFragment.setArguments(args);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(R.id.fragment_step_container, stepDetailsFragment).commit();
+            }
         }
-    }
+    };
+
 
 
 }

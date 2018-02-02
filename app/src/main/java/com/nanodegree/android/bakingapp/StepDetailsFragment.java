@@ -50,6 +50,7 @@ public class StepDetailsFragment extends Fragment {
     SimpleExoPlayer mExoPlayer;
     FrameLayout playerContainer;
     TextView stepDescription;
+    long position;
 
     @Nullable
     @Override
@@ -65,6 +66,10 @@ public class StepDetailsFragment extends Fragment {
         mPlayerView.setDefaultArtwork(BitmapFactory.decodeResource(getResources(),R.drawable.arrow));
 
         initializePlayer(Uri.parse(step.getVideoURL()));
+
+        if(savedInstanceState!=null){
+            mExoPlayer.seekTo(savedInstanceState.getLong("position"));
+        }
 
         stepDescription = (TextView) rootView.findViewById(R.id.step_full_description);
         stepDescription.setText(step.getDescription());
@@ -91,9 +96,12 @@ public class StepDetailsFragment extends Fragment {
     }
 
     private void releasePlayer(){
-        mExoPlayer.stop();
-        mExoPlayer.release();
-        mExoPlayer = null;
+        if(mExoPlayer!=null) {
+            position = mExoPlayer.getCurrentPosition();
+            mExoPlayer.stop();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
     }
 
     @Override
@@ -102,7 +110,11 @@ public class StepDetailsFragment extends Fragment {
         releasePlayer();
     }
 
-
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong("position",position);
+    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -120,6 +132,7 @@ public class StepDetailsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        initializePlayer(Uri.parse(step.getVideoURL()));
         if(getResources().getConfiguration().orientation==Configuration.ORIENTATION_LANDSCAPE){
             LinearLayout.LayoutParams params= new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
             playerContainer.setLayoutParams(params);
