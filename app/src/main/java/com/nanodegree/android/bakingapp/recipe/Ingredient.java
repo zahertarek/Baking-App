@@ -5,11 +5,13 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 
+import io.realm.RealmObject;
+
 /**
  * Created by New on 1/30/2018.
  */
 
-public class Ingredient implements Parcelable {
+public class Ingredient  implements Parcelable {
 
     double quantity;
     String ingredient;

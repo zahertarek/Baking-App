@@ -50,6 +50,7 @@ public class StepDetailsFragment extends Fragment {
     SimpleExoPlayer mExoPlayer;
     FrameLayout playerContainer;
     TextView stepDescription;
+    boolean playerState;
     long position;
 
     @Nullable
@@ -69,6 +70,8 @@ public class StepDetailsFragment extends Fragment {
 
         if(savedInstanceState!=null){
             mExoPlayer.seekTo(savedInstanceState.getLong("position"));
+            mExoPlayer.setPlayWhenReady(savedInstanceState.getBoolean("state"));
+
         }
 
         stepDescription = (TextView) rootView.findViewById(R.id.step_full_description);
@@ -91,13 +94,13 @@ public class StepDetailsFragment extends Fragment {
             MediaSource videoSource = new ExtractorMediaSource(uri, new DefaultDataSourceFactory(getActivity(), userAgent),
                     new DefaultExtractorsFactory(), null, null);
             mExoPlayer.prepare(videoSource);
-            mExoPlayer.setPlayWhenReady(true);
         }
     }
 
     private void releasePlayer(){
         if(mExoPlayer!=null) {
             position = mExoPlayer.getCurrentPosition();
+            playerState = mExoPlayer.getPlayWhenReady();
             mExoPlayer.stop();
             mExoPlayer.release();
             mExoPlayer = null;
@@ -114,6 +117,7 @@ public class StepDetailsFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putLong("position",position);
+        outState.putBoolean("state",playerState);
     }
 
     @Override

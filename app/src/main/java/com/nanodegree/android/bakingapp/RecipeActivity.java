@@ -1,17 +1,28 @@
 package com.nanodegree.android.bakingapp;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
+import com.nanodegree.android.bakingapp.recipe.Ingredient;
+import com.nanodegree.android.bakingapp.recipe.IngredientRealm;
 import com.nanodegree.android.bakingapp.recipe.Recipe;
 import com.nanodegree.android.bakingapp.recipe.Step;
+
+import java.util.ArrayList;
+import java.util.UUID;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class RecipeActivity extends AppCompatActivity {
 
     public static boolean mTwoPane;
+    Recipe recipe;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +37,7 @@ public class RecipeActivity extends AppCompatActivity {
 
 
 
-            Recipe recipe = (Recipe) getIntent().getParcelableExtra("Recipe");
+            recipe = (Recipe) getIntent().getParcelableExtra("Recipe");
             Bundle args = new Bundle();
             args.putParcelable("Recipe", recipe);
             RecipeDetailsFragment recipeDetailsFragment = new RecipeDetailsFragment();
@@ -49,6 +60,12 @@ public class RecipeActivity extends AppCompatActivity {
 
         }
 
+
+        Intent intent = new Intent("android.appwidget.action.LIST_UPDATE");
+        ArrayList<Ingredient> ingredients = (ArrayList<Ingredient>) recipe.getIngredients();
+        intent.putParcelableArrayListExtra("ingredients",ingredients);
+        getApplicationContext().sendBroadcast(intent);
+
     }
 
     @Override
@@ -56,5 +73,35 @@ public class RecipeActivity extends AppCompatActivity {
         if(item.getItemId() == android.R.id.home)
             onBackPressed();
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Realm.init(getBaseContext());
+        Realm realm = Realm.getDefaultInstance();
+        final RealmResults<IngredientRealm> results = realm.where(IngredientRealm.class).findAll();
+
+        // All changes to data must happen in a transaction
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                results.deleteAllFromRealm();
+            }
+        });
+        for(int i=0;i<recipe.getIngredients().size();i++){
+            realm.beginTransaction();
+            IngredientRealm ingredientRealm = realm.createObject(IngredientRealm.class);
+            ingredientRealm.setIngredient(recipe.getIngredients().get(i).getIngredient()+" "
+                    +recipe.getIngredients().get(i).getQuantity()+" "+
+                    recipe.getIngredients().get(i).getMeasure());
+            realm.commitTransaction();
+        }
+
+        Log.e("AAA",realm.where(IngredientRealm.class).findAll().get(0).getIngredient());
+        Intent intent = new Intent("android.appwidget.action.LIST_UPDATE");
+        getApplicationContext().sendBroadcast(intent);
+
     }
 }

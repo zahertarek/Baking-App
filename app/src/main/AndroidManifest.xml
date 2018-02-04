@@ -21,9 +21,13 @@
         <activity android:name=".RecipeActivity" />
         <activity android:name=".StepActivity" />
 
+        <service android:name=".ListViewWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"></service>
+
         <receiver android:name=".AppWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.LIST_UPDATE" />
             </intent-filter>
 
             <meta-data
