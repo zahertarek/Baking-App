@@ -1,6 +1,7 @@
 package com.nanodegree.android.bakingapp;
 
 import android.content.Intent;
+import android.os.PersistableBundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -61,9 +62,8 @@ public class RecipeActivity extends AppCompatActivity {
         }
 
 
+
         Intent intent = new Intent("android.appwidget.action.LIST_UPDATE");
-        ArrayList<Ingredient> ingredients = (ArrayList<Ingredient>) recipe.getIngredients();
-        intent.putParcelableArrayListExtra("ingredients",ingredients);
         getApplicationContext().sendBroadcast(intent);
 
     }
@@ -76,8 +76,18 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putParcelable("recipe",recipe);
+    }
+
+    @Override
     protected void onResume() {
+
         super.onResume();
+        if(recipe==null){
+            recipe = (Recipe) getIntent().getParcelableExtra("Recipe");
+        }
         Realm.init(getBaseContext());
         Realm realm = Realm.getDefaultInstance();
         final RealmResults<IngredientRealm> results = realm.where(IngredientRealm.class).findAll();
